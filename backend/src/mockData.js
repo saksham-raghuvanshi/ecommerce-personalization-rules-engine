@@ -227,7 +227,6 @@ export function getMockSessions() {
   return [
     genBrowserSession(),
     genComparerSession(),
-    genBrowserSession(),
     genCartAbandonerSession(),
     genDiscountSeekerSession(),
     genLoyalCustomerSession(),

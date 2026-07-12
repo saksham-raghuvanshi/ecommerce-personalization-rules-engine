@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
-import ClassificationPanel from "./components/ClassificationPanel";
-import EventTimeline from "./components/EventTimeline";
-import SessionPicker from "./components/SessionPicker";
-import { fetchSessions } from "./api";
+import SessionPicker from "./components/SessionPicker.jsx";
+import EventTimeline from "./components/EventTimeline.jsx";
+import ClassificationPanel from "./components/ClassificationPanel.jsx";
+import { fetchSessions } from "./api.js";
+import type { Session, SessionEvent } from "./types";
 
-
-
-
-
-function blankSession() {
+function blankSession(): Session {
   return {
     sessionId: "sess_custom",
     userId: "user_custom",
@@ -19,81 +16,93 @@ function blankSession() {
   };
 }
 
+export default function App() {
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [activeSession, setActiveSession] = useState<Session>(() => blankSession());
 
+  useEffect(() => {
+    fetchSessions()
+      .then((s: Session[]) => {
+        const data = Array.isArray(s) ? s : [];
 
+           console.log("[fetchSessions] raw response:", data);
 
+        setSessions(data);
 
-function App() {
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [activeSession, setActiveSession] = useState<any>(blankSession());
+        if (data.length) {
+          selectSession(data[0]);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
+  function selectSession(s: Session) {
+    // 🔍 DEBUG — check what's inside the session that was clicked.
+    console.log("[selectSession] switching to:", s.sessionId, "events:", s.events);
 
-  useEffect(()=>{
-    
-        const res = fetchSessions()
+    if (!s.events) {
+      console.warn(
+        `[selectSession] "${s.sessionId}" has no events array — the list endpoint likely isn't sending full session data.`
+      );
+    }
 
-
-        res.then((s)=>{
-          setSessions(s);
-        }).catch(error => {
-          console.error("Failed to fetch sessions:", error);
-        });
-      
-
-  },[])
-
-
-  function selectSession(a){
-    setActiveSession(JSON.parse(JSON.stringify(s)))
+    setActiveSession(JSON.parse(JSON.stringify(s)));
   }
 
-
-  function handleNewBlank(){
-    setActiveSession(blankSession())
+  function handleNewBlank() {
+    setActiveSession(blankSession());
   }
 
-
-  function handleAddEvent(event: any) {
-    setActiveSession((prev) => ({ ...prev, events: [...prev.events, event] }));
-  }
-
-
-
-  function handleRemoveEvent(index) {
+  function handleAddEvent(event: SessionEvent) {
     setActiveSession((prev) => ({
       ...prev,
-      events: prev.events.filter((_, i) => i !== index),
+      events: [...(prev.events || []), event],
+    }));
+  }
+
+  function handleRemoveEvent(index: number) {
+    setActiveSession((prev) => ({
+      ...prev,
+      events: (prev.events || []).filter((_, i) => i !== index),
     }));
   }
 
   return (
-  
-    <div className="main-page">
+    <div className="app-shell">
       <header className="header">
-       <div className="brand">
-        <span className="brand-mark">Personalized <span>.</span></span>
-        <span className="brand-sub">Console </span>
-       </div>
-       <span className="live-dot">Live Classification</span>
+        <div className="brand">
+          <span className="brand-mark">
+            Signal<span>.</span>
+          </span>
+          <span className="brand-sub">shopper state console</span>
+        </div>
+        <span className="live-dot">live classification</span>
       </header>
 
       <div className="main-grid">
         <div className="pane">
-          <div className="pane-title">Session Simulator</div>
-          <SessionPicker sessions={sessions} activeId={activeSession.sessionId} onselect={selectSession} onNew={handleNewBlank} />
-          <EventTimeline events={activeSession.events} onAdd={handleAddEvent} onRemove={handleRemoveEvent} />
+          <div className="pane-title">Session simulator</div>
+          <SessionPicker
+            sessions={sessions}
+            activeId={activeSession.sessionId}
+            onSelect={selectSession}
+            onNew={handleNewBlank}
+          />
+          {/* key forces a clean remount when the session changes —
+              guarantees no leftover internal state from the previous session */}
+          <EventTimeline
+            key={activeSession.sessionId}
+            events={activeSession.events || []}
+            onAdd={handleAddEvent}
+            onRemove={handleRemoveEvent}
+          />
         </div>
 
         <div className="pane">
           <div className="pane-title">Classification</div>
-          <ClassificationPanel/>
-
+          <ClassificationPanel />
         </div>
-
       </div>
     </div>
-
-  )
+  );
 }
-
-export default App

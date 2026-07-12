@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { SessionEvent } from "../types";
 
 const EVENT_TYPES = [
   "page_view",
@@ -13,27 +14,9 @@ const EVENT_TYPES = [
   "purchase",
 ];
 
-
-interface EventTimelineEvent {
-  type: string;
-  timestamp: string;
-  category?: string;
-  price?: number;
-  durationSec?: number;
-  productId?: string;
-  query?: string;
-  filterType?: string;
-  value?: string;
-  code?: string;
-  success?: boolean;
-  orderId?: string;
-  amount?: number;
-  page?: string;
-}
-
 interface EventTimelineProps {
-  events: EventTimelineEvent[];
-  onAdd: (event: EventTimelineEvent) => void;
+  events: SessionEvent[];
+  onAdd: (event: SessionEvent) => void;
   onRemove: (index: number) => void;
 }
 
@@ -46,14 +29,13 @@ function formatTime(iso: string) {
   }
 }
 
-
-function eventDetail(e: EventTimelineEvent) {
+function eventDetail(e: SessionEvent) {
   switch (e.type) {
     case "product_view":
-      return `${e.category || "?"} · $${e.price ?? "?"} · ${e.durationSec ?? 0}s`;
+      return `${e.category || "?"} · ₹${e.price ?? "?"} · ${e.durationSec ?? 0}s`;
     case "add_to_cart":
     case "remove_from_cart":
-      return `${e.productId || ""} · $${e.price ?? "?"}`;
+      return `${e.productId || ""} · ₹${e.price ?? "?"}`;
     case "search":
       return `"${e.query || ""}"`;
     case "filter_applied":
@@ -61,7 +43,7 @@ function eventDetail(e: EventTimelineEvent) {
     case "coupon_apply":
       return `${e.code || ""} · ${e.success ? "success" : "failed"}`;
     case "purchase":
-      return `${e.orderId || ""} · $${e.amount ?? "?"}`;
+      return `${e.orderId || ""} · ₹${e.amount ?? "?"}`;
     case "page_view":
       return e.page || "";
     default:
@@ -69,24 +51,26 @@ function eventDetail(e: EventTimelineEvent) {
   }
 }
 
-
-
 export default function EventTimeline({ events, onAdd, onRemove }: EventTimelineProps) {
-
-const [type, setType] = useState("product_view");
-const [category, setCategory] = useState("sneakers");
+  const [type, setType] = useState("product_view");
+  const [category, setCategory] = useState("sneakers");
   const [price, setPrice] = useState(99);
   const [duration, setDuration] = useState(20);
   const [query, setQuery] = useState("discount code");
   const [couponSuccess, setCouponSuccess] = useState(false);
 
-
   function handleAdd() {
     const timestamp = new Date().toISOString();
-    let event = { type, timestamp };
+    let event: SessionEvent = { type, timestamp };
 
     if (type === "product_view") {
-      event = { ...event, productId: `P${Math.floor(Math.random() * 90 + 10)}`, category, price: Number(price), durationSec: Number(duration) };
+      event = {
+        ...event,
+        productId: `P${Math.floor(Math.random() * 90 + 10)}`,
+        category,
+        price: Number(price),
+        durationSec: Number(duration),
+      };
     } else if (type === "add_to_cart" || type === "remove_from_cart") {
       event = { ...event, productId: `P${Math.floor(Math.random() * 90 + 10)}`, price: Number(price) };
     } else if (type === "search") {
@@ -103,12 +87,15 @@ const [category, setCategory] = useState("sneakers");
 
     onAdd(event);
   }
+
   return (
     <div>
-    <div className="event-log">
-        {events.length === 0 && <div className="event-empty">No events yet — add one below to start the simulation</div>}
-        {events.map((e,i)=>(
-             <div className="event-row" key={i}>
+      <div className="event-log">
+        {events.length === 0 && (
+          <div className="event-empty">No events yet — add one below to start the simulation</div>
+        )}
+        {events.map((e, i) => (
+          <div className="event-row" key={i}>
             <span className="event-time">{formatTime(e.timestamp)}</span>
             <span>
               <span className="event-type">{e.type}</span>
@@ -117,13 +104,11 @@ const [category, setCategory] = useState("sneakers");
             <button className="event-remove" onClick={() => onRemove(i)} aria-label={`Remove event ${e.type}`}>
               ✕
             </button>
-            
           </div>
-
         ))}
-      
-    </div>
-     <div className="add-event">
+      </div>
+
+      <div className="add-event">
         <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Event type">
           {EVENT_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -141,19 +126,54 @@ const [category, setCategory] = useState("sneakers");
                 </option>
               ))}
             </select>
-            <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="price" style={{ width: 70 }} />
-            <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="dwell sec" style={{ width: 80 }} />
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              placeholder="price"
+              style={{ width: 70 }}
+            />
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              placeholder="dwell sec"
+              style={{ width: 80 }}
+            />
           </>
         )}
 
         {(type === "add_to_cart" || type === "remove_from_cart" || type === "purchase" || type === "filter_applied") && (
-          <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="price" style={{ width: 70 }} />
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            placeholder="price"
+            style={{ width: 70 }}
+          />
         )}
 
-        {type === "search" && <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="search query" style={{ width: 160 }} />}
+        {type === "search" && (
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="search query"
+            style={{ width: 160 }}
+          />
+        )}
 
         {type === "coupon_apply" && (
-          <label style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              color: "var(--text-muted)",
+            }}
+          >
             <input type="checkbox" checked={couponSuccess} onChange={(e) => setCouponSuccess(e.target.checked)} />
             success
           </label>
@@ -164,5 +184,5 @@ const [category, setCategory] = useState("sneakers");
         </button>
       </div>
     </div>
-  )
+  );
 }
