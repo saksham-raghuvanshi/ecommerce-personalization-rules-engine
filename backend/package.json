@@ -1,0 +1,27 @@
+{
+  "name": "personalization-engine-backend",
+  "version": "1.0.0",
+  "type":"module",
+  "description": "Ecommerce Personalization Rules Engine Backend",
+  "homepage": "https://github.com/saksham-raghuvanshi/ecommerce-personalization-rules-engine#readme",
+  "bugs": {
+    "url": "https://github.com/saksham-raghuvanshi/ecommerce-personalization-rules-engine/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saksham-raghuvanshi/ecommerce-personalization-rules-engine.git"
+  },
+  "license": "ISC",
+  "author": "Saksham Raghuvanshi",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2"
+  }
+}
