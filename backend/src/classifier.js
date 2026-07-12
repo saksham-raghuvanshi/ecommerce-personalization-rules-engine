@@ -121,3 +121,67 @@ function scoreStates(f) {
 
   return scores;
 }
+
+export function classifySession(session) {
+  const features = extractFeatures(session);
+  const scores = scoreStates(features);
+
+  const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const [topState, topScore] = ranked[0];
+  const secondScore = ranked[1] ? ranked[1][1] : 0;
+
+  // confidence = how far ahead the winner is from the runner-up,
+  // normalized into a 0-100 band, floor at 30 so it never reads as 0% and 100%
+  const gap = topScore - secondScore;
+  const confidence = Math.round(Math.max(30, Math.min(99, 50 + gap)));
+
+  const evidence = buildEvidence(topState, features);
+
+  return {
+    state: topState,
+    confidence,
+    scores,
+    features,
+    evidence, // short machine-generated bullet list (fallback if LLM unavailable)
+  };
+}
+
+function buildEvidence(state, f) {
+  const bullets = [];
+  switch (state) {
+    case STATES.LOYAL_CUSTOMER:
+      bullets.push(`${f.pastPurchaseCount} past purchase(s) on record`);
+      if (f.isReturning)
+        bullets.push(
+          `Returning visitor (last seen ${f.daysSinceLastVisit} day(s) ago)`,
+        );
+      if (f.purchased) bullets.push("Completed a purchase this session");
+      break;
+    case STATES.CART_ABANDONER:
+      bullets.push(`${f.cartAddCount} item(s) added to cart`);
+      if (f.checkoutStarted) bullets.push("Checkout started but not completed");
+      bullets.push("No purchase event recorded");
+      break;
+    case STATES.DISCOUNT_SEEKER:
+      bullets.push(`${f.couponInteractionCount} coupon-related interaction(s)`);
+      if (f.failedCouponAttempts > 0)
+        bullets.push(`${f.failedCouponAttempts} failed coupon attempt(s)`);
+      if (f.searchCount > 0)
+        bullets.push("Searched for discount/offer related terms");
+      break;
+    case STATES.COMPARER:
+      bullets.push(
+        `${f.maxCategoryRepeat} products viewed within the same category`,
+      );
+      bullets.push(`Avg. ${f.avgDwellSec}s spent per product`);
+      if (f.cartAddCount === 0)
+        bullets.push("No cart action yet — still evaluating options");
+      break;
+    default:
+      bullets.push(`Only ${f.productViewCount} product view(s) this session`);
+      bullets.push("No cart, search, or coupon activity detected");
+  }
+  return bullets;
+}
+
+export const SHOPPER_STATES = STATES;
