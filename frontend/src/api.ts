@@ -6,3 +6,14 @@ export async function fetchSessions() {
   const data = await res.json();
   return data.sessions;
 }
+
+
+export async function classify(session: any): Promise<any> {
+  const res = await fetch(`${BASE}/classify`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({session}),
+  })
+  if (!res.ok) throw new Error("Classification failed");
+  return res.json();
+}
