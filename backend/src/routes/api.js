@@ -1,10 +1,23 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
+
 import { getMockSessions, getMockSessionById } from "../mockData.js";
 import { classifySession } from "../classifier.js";
 import { explainClassification } from "../limExplainer.js";
 
 const router = express.Router();
 
+const explainLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error:
+      "Too many explanation requests — please wait a bit before trying again.",
+    detail: "Rate limit: 10 Claude calls per minute per IP.",
+  },
+});
 router.get("/sessions", (req, res) => {
   res.json({ sessions: getMockSessions() });
 });
@@ -31,7 +44,7 @@ router.post("/classify", (req, res) => {
   }
 });
 
-router.post("/explain", async (req, res) => {
+router.post("/explain", explainLimiter, async (req, res) => {
   const { state, confidence, features, evidence } = req.body;
   if (!state || !features) {
     return res.status(400).json({ error: "state and features are required" });
