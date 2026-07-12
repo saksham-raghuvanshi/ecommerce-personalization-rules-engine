@@ -93,7 +93,7 @@ Two panels side by side. Left = edit events. Right = see the result.
 
 ```
 --------------------------------------------------
-| Signal - shopper state console                 |
+| Personalize console                 |
 --------------------------------------------------
 | SESSION SIMULATOR      | CLASSIFICATION         |
 |                        |                         |
