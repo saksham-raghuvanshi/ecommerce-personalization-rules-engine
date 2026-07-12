@@ -1,24 +1,26 @@
-const BASE = "http://localhost:4000/api";
+import type { Session, ClassificationResult, Explanation } from "./types";
 
-export async function fetchSessions() {
+const BASE = "/api";
+
+export async function fetchSessions(): Promise<Session[]> {
   const res = await fetch(`${BASE}/sessions`);
   if (!res.ok) throw new Error("Failed to load sessions");
   const data = await res.json();
   return data.sessions;
 }
 
-
-export async function classify(session: any): Promise<any> {
-  const res = await fetch(`${BASE}/classify`,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({session}),
-  })
+export async function classify(session: Session): Promise<ClassificationResult> {
+  const res = await fetch(`${BASE}/classify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session }),
+  });
   if (!res.ok) throw new Error("Classification failed");
   return res.json();
 }
 
-export async function explain({ state, confidence, features, evidence }: { state: any; confidence: any; features: any; evidence: any }) {
+export async function explain(result: ClassificationResult): Promise<Explanation> {
+  const { state, confidence, features, evidence } = result;
   const res = await fetch(`${BASE}/explain`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

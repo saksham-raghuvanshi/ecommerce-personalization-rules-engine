@@ -1,4 +1,4 @@
-# Signal — Ecommerce Personalization Rules Engine
+# Ecommerce Personalization Rules Engine
 
 A small tool that looks at what a shopper does on a website, the pages they
 open, the products they view, whether they add things to cart, whether they
