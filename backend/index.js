@@ -9,6 +9,10 @@ const PORT = process.env.PORT || 4000;
 app.use(cors);
 app.use(express.json());
 
-app.listen(4000, () => {
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Personalization Engine Backedn" });
+});
+
+app.listen(PORT, () => {
   console.log(`Personalization engine backend running on ${PORT}`);
 });

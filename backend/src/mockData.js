@@ -37,6 +37,11 @@ const CATEGORIES = [
   "jackets",
 ];
 
+function ts(minutesFromStart) {
+  const base = new Date("2026-07-10T10:00:00Z").getTime();
+  return new Date(base + minutesFromStart * 60000).toISOString();
+}
+
 function genBrowserSession() {
   return {
     sessionId: "sess_browser_01",
@@ -44,6 +49,30 @@ function genBrowserSession() {
     pastPurchaseCount: 0,
     isReturning: false,
     daysSinceLastVisit: null,
+    events: [
+      { type: "page_view", page: "/home", timestamp: ts(0) },
+      {
+        type: "product_view",
+        productId: "P12",
+        category: "sneakers",
+        price: 79,
+        durationSec: 8,
+        timestamp: ts(1),
+      },
+      {
+        type: "page_view",
+        page: "/collections/new-arrivals",
+        timestamp: ts(2),
+      },
+      {
+        type: "product_view",
+        productId: "P45",
+        category: "watches",
+        price: 129,
+        durationSec: 5,
+        timestamp: ts(3),
+      },
+    ],
   };
 }
 
@@ -54,6 +83,52 @@ function genComparerSession() {
     pastPurchaseCount: 0,
     isReturning: true,
     daysSinceLastVisit: 2,
+    events: [
+      { type: "page_view", page: "/collections/headphones", timestamp: ts(0) },
+      {
+        type: "product_view",
+        productId: "H01",
+        category: "headphones",
+        price: 199,
+        durationSec: 45,
+        timestamp: ts(1),
+      },
+      {
+        type: "product_view",
+        productId: "H02",
+        category: "headphones",
+        price: 179,
+        durationSec: 60,
+        timestamp: ts(3),
+      },
+      {
+        type: "filter_applied",
+        filterType: "price",
+        value: "150-200",
+        timestamp: ts(4),
+      },
+      {
+        type: "product_view",
+        productId: "H03",
+        category: "headphones",
+        price: 189,
+        durationSec: 55,
+        timestamp: ts(6),
+      },
+      {
+        type: "product_view",
+        productId: "H01",
+        category: "headphones",
+        price: 199,
+        durationSec: 30,
+        timestamp: ts(9),
+      },
+      {
+        type: "search",
+        query: "best noise cancelling headphones",
+        timestamp: ts(10),
+      },
+    ],
   };
 }
 
@@ -64,6 +139,32 @@ function genDiscountSeekerSession() {
     pastPurchaseCount: 1,
     isReturning: true,
     daysSinceLastVisit: 14,
+    events: [
+      {
+        type: "product_view",
+        productId: "J01",
+        category: "jackets",
+        price: 149,
+        durationSec: 20,
+        timestamp: ts(0),
+      },
+      { type: "add_to_cart", productId: "J01", price: 149, timestamp: ts(2) },
+      { type: "coupon_field_view", timestamp: ts(3) },
+      {
+        type: "coupon_apply",
+        code: "SAVE10",
+        success: false,
+        timestamp: ts(3.5),
+      },
+      { type: "search", query: "jacket discount code", timestamp: ts(4) },
+      {
+        type: "coupon_apply",
+        code: "WELCOME15",
+        success: false,
+        timestamp: ts(5),
+      },
+      { type: "page_view", page: "/pages/offers", timestamp: ts(6) },
+    ],
   };
 }
 
@@ -74,6 +175,27 @@ function genCartAbandonerSession() {
     pastPurchaseCount: 0,
     isReturning: false,
     daysSinceLastVisit: null,
+    events: [
+      {
+        type: "product_view",
+        productId: "B02",
+        category: "backpacks",
+        price: 89,
+        durationSec: 25,
+        timestamp: ts(0),
+      },
+      { type: "add_to_cart", productId: "B02", price: 89, timestamp: ts(1) },
+      {
+        type: "product_view",
+        productId: "B05",
+        category: "backpacks",
+        price: 99,
+        durationSec: 15,
+        timestamp: ts(2),
+      },
+      { type: "add_to_cart", productId: "B05", price: 99, timestamp: ts(3) },
+      { type: "checkout_start", timestamp: ts(4) },
+    ],
   };
 }
 
@@ -84,6 +206,20 @@ function genLoyalCustomerSession() {
     pastPurchaseCount: 5,
     isReturning: true,
     daysSinceLastVisit: 20,
+    events: [
+      { type: "page_view", page: "/account/orders", timestamp: ts(0) },
+      {
+        type: "product_view",
+        productId: "S09",
+        category: "sneakers",
+        price: 119,
+        durationSec: 12,
+        timestamp: ts(1),
+      },
+      { type: "add_to_cart", productId: "S09", price: 119, timestamp: ts(2) },
+      { type: "checkout_start", timestamp: ts(3) },
+      { type: "purchase", orderId: "ORD-9981", amount: 119, timestamp: ts(4) },
+    ],
   };
 }
 
