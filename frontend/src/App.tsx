@@ -72,9 +72,9 @@ export default function App() {
       <header className="header">
         <div className="brand">
           <span className="brand-mark">
-            Signal<span>.</span>
+            Personlized<span>.</span>
           </span>
-          <span className="brand-sub">shopper state console</span>
+          <span className="brand-sub">console</span>
         </div>
         <span className="live-dot">live classification</span>
       </header>
