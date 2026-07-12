@@ -1,3 +1,6 @@
+import ClassificationPanel from "./components/ClassificationPanel";
+import EventTimeline from "./components/EventTimeline";
+import SessionPicker from "./components/SessionPicker";
 
 
 
@@ -16,7 +19,7 @@ function blankSession() {
 function App() {
 
   return (
-    <>
+  
     <div className="main-page">
       <header className="header">
        <div className="brand">
@@ -25,9 +28,23 @@ function App() {
        </div>
        <span className="live-dot">Live Classification</span>
       </header>
+
+      <div className="main-grid">
+        <div className="pane">
+          <div className="pane-title">Session Simulator</div>
+          <SessionPicker/>
+          <EventTimeline/>
+        </div>
+
+        <div className="pane">
+          <div className="pane-title">Classification</div>
+          <ClassificationPanel/>
+
+        </div>
+
+      </div>
     </div>
-      
-    </>
+
   )
 }
 
