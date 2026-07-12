@@ -6,6 +6,8 @@ import { fetchSessions } from "./api";
 
 
 
+
+
 function blankSession() {
   return {
     sessionId: "sess_custom",
@@ -20,9 +22,10 @@ function blankSession() {
 
 
 
+
 function App() {
-  const [sessions, setSessions] = useState([]);
-  const [activeSession, setActiveSession] = useState(blankSession());
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [activeSession, setActiveSession] = useState<any>(blankSession());
 
 
   useEffect(()=>{
@@ -48,6 +51,21 @@ function App() {
   function handleNewBlank(){
     setActiveSession(blankSession())
   }
+
+
+  function handleAddEvent(event: any) {
+    setActiveSession((prev) => ({ ...prev, events: [...prev.events, event] }));
+  }
+
+
+
+  function handleRemoveEvent(index) {
+    setActiveSession((prev) => ({
+      ...prev,
+      events: prev.events.filter((_, i) => i !== index),
+    }));
+  }
+
   return (
   
     <div className="main-page">
@@ -63,7 +81,7 @@ function App() {
         <div className="pane">
           <div className="pane-title">Session Simulator</div>
           <SessionPicker sessions={sessions} activeId={activeSession.sessionId} onselect={selectSession} onNew={handleNewBlank} />
-          <EventTimeline/>
+          <EventTimeline events={activeSession.events} onAdd={handleAddEvent} onRemove={handleRemoveEvent} />
         </div>
 
         <div className="pane">

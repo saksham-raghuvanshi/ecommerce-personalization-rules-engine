@@ -14,7 +14,30 @@ const EVENT_TYPES = [
 ];
 
 
-function formatTime(iso) {
+interface EventTimelineEvent {
+  type: string;
+  timestamp: string;
+  category?: string;
+  price?: number;
+  durationSec?: number;
+  productId?: string;
+  query?: string;
+  filterType?: string;
+  value?: string;
+  code?: string;
+  success?: boolean;
+  orderId?: string;
+  amount?: number;
+  page?: string;
+}
+
+interface EventTimelineProps {
+  events: EventTimelineEvent[];
+  onAdd: (event: EventTimelineEvent) => void;
+  onRemove: (index: number) => void;
+}
+
+function formatTime(iso: string) {
   try {
     const d = new Date(iso);
     return d.toISOString().slice(11, 16);
@@ -24,7 +47,7 @@ function formatTime(iso) {
 }
 
 
-function eventDetail(e) {
+function eventDetail(e: EventTimelineEvent) {
   switch (e.type) {
     case "product_view":
       return `${e.category || "?"} · $${e.price ?? "?"} · ${e.durationSec ?? 0}s`;
@@ -48,7 +71,7 @@ function eventDetail(e) {
 
 
 
-export default function EventTimeline(events, onAdd, onRemove ) {
+export default function EventTimeline({ events, onAdd, onRemove }: EventTimelineProps) {
 
 const [type, setType] = useState("product_view");
 const [category, setCategory] = useState("sneakers");
