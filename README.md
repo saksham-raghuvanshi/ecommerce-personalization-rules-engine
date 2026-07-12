@@ -86,6 +86,39 @@ viewed, how many times added to cart, whether checkout was started but no
 purchase happened, and so on), and scores all 5 shopper types. Whichever
 type scores highest wins.
 
+
+## Website layout
+
+Two panels side by side. Left = edit events. Right = see the result.
+
+```
+--------------------------------------------------
+| Signal - shopper state console                 |
+--------------------------------------------------
+| SESSION SIMULATOR      | CLASSIFICATION         |
+|                        |                         |
+| [session buttons]      | State: Cart Abandoner   |
+|                        | Confidence: 99%         |
+| event list             |                         |
+|  - product_view        | scores for all 5 types  |
+|  - add_to_cart         |                         |
+|  - checkout_start      | evidence bullets        |
+|                        |                         |
+| [add event form]       | Claude's explanation    |
+|                        | recommended action      |
+--------------------------------------------------
+```
+
+Left side = `SessionPicker.jsx` + `EventTimeline.jsx`. You pick a sample
+session or start blank, then add/remove events.
+
+Right side = `ClassificationPanel.jsx`. Shows the state, confidence, scores,
+evidence, and Claude's explanation + recommended action.
+
+Left side updates the right side instantly for the state/confidence, and
+after ~700ms for Claude's explanation.
+
+
 ## Project structure
 
 ```
