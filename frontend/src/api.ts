@@ -1,6 +1,6 @@
 import type { Session, ClassificationResult, Explanation } from "./types";
 
-const BASE = "/api";
+const BASE = "http://localhost:4000/api";
 
 export async function fetchSessions(): Promise<Session[]> {
   const res = await fetch(`${BASE}/sessions`);
