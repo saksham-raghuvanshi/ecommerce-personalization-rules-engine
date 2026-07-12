@@ -185,6 +185,32 @@ html,body{
 .session-picker{
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 24px;
 }
+
+.session-chip {
+ font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 7px 12px;
+   border-radius: 6px;
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+}
+
+.session-chip:hover {
+  border-color: var(--text-faint);
+  color: var(--text);
+}
+.session-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+
