@@ -22,6 +22,7 @@ function blankSession() {
 
 function App() {
   const [sessions, setSessions] = useState([]);
+  const [activeSession, setActiveSession] = useState(blankSession());
 
 
   useEffect(()=>{
@@ -38,6 +39,15 @@ function App() {
 
   },[])
 
+
+  function selectSession(a){
+    setActiveSession(JSON.parse(JSON.stringify(s)))
+  }
+
+
+  function handleNewBlank(){
+    setActiveSession(blankSession())
+  }
   return (
   
     <div className="main-page">
@@ -52,7 +62,7 @@ function App() {
       <div className="main-grid">
         <div className="pane">
           <div className="pane-title">Session Simulator</div>
-          <SessionPicker sessions={sessions}/>
+          <SessionPicker sessions={sessions} activeId={activeSession.sessionId} onselect={selectSession} onNew={handleNewBlank} />
           <EventTimeline/>
         </div>
 
