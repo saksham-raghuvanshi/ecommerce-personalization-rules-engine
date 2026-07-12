@@ -223,7 +223,7 @@ function genLoyalCustomerSession() {
   };
 }
 
-export function getMockSession() {
+export function getMockSessions() {
   return [
     genBrowserSession(),
     genComparerSession(),
@@ -234,4 +234,6 @@ export function getMockSession() {
   ];
 }
 
-export function getMockSessionById() {}
+export function getMockSessionById(sessionId) {
+  return getMockSessions().find((s) => s.sessionId === sessionId) || null;
+}
