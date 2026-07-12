@@ -17,3 +17,13 @@ export async function classify(session: any): Promise<any> {
   if (!res.ok) throw new Error("Classification failed");
   return res.json();
 }
+
+export async function explain({ state, confidence, features, evidence }: { state: any; confidence: any; features: any; evidence: any }) {
+  const res = await fetch(`${BASE}/explain`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ state, confidence, features, evidence }),
+  });
+  if (!res.ok) throw new Error("Explanation failed");
+  return res.json();
+}

@@ -1,6 +1,7 @@
 import express from "express";
 import { getMockSessions, getMockSessionById } from "../mockData.js";
 import { classifySession } from "../classifier.js";
+import { explainClassification } from "../limExplainer.js";
 
 const router = express.Router();
 
@@ -30,4 +31,24 @@ router.post("/classify", (req, res) => {
   }
 });
 
+router.post("/explain", async (req, res) => {
+  const { state, confidence, features, evidence } = req.body;
+  if (!state || !features) {
+    return res.status(400).json({ error: "state and features are required" });
+  }
+  try {
+    const explanation = await explainClassification({
+      state,
+      confidence,
+      features,
+      evidence: evidence || [],
+    });
+    res.json(explanation);
+  } catch (err) {
+    console.error("LLM explain error:", err.message);
+    res
+      .status(500)
+      .json({ error: "Explanation generation failed", detail: err.message });
+  }
+});
 export default router;

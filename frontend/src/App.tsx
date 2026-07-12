@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SessionPicker from "./components/SessionPicker.jsx";
 import EventTimeline from "./components/EventTimeline.jsx";
 import ClassificationPanel from "./components/ClassificationPanel.jsx";
-import { fetchSessions } from "./api.js";
-import type { Session, SessionEvent } from "./types";
+import { fetchSessions, classify, explain } from "./api";
+import type { Session, SessionEvent, ClassificationResult, Explanation } from "./types";
 
 function blankSession(): Session {
   return {
@@ -19,13 +19,18 @@ function blankSession(): Session {
 export default function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSession, setActiveSession] = useState<Session>(() => blankSession());
+  const [result, setResult] = useState<ClassificationResult | null>(null);
+  const [explanation, setExplanation] = useState<Explanation | null>(null);
+  const [explainLoading, setExplainLoading] = useState(false);
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetchSessions()
       .then((s: Session[]) => {
         const data = Array.isArray(s) ? s : [];
 
-           console.log("[fetchSessions] raw response:", data);
+        console.log("[fetchSessions] raw response:", data);
 
         setSessions(data);
 
@@ -36,10 +41,44 @@ export default function App() {
       .catch(console.error);
   }, []);
 
-  function selectSession(s: Session) {
-    // 🔍 DEBUG — check what's inside the session that was clicked.
-    console.log("[selectSession] switching to:", s.sessionId, "events:", s.events);
+  // Live, deterministic classification — runs instantly on every event change
+  useEffect(() => {
+    let cancelled = false;
+    classify(activeSession)
+      .then((r) => {
+        if (!cancelled) setResult(r);
+      })
+      .catch(() => {});
+    setExplanation(null);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSession]);
 
+  // Debounced LLM explanation — avoids firing on every keystroke/click
+  useEffect(() => {
+    if (!result) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      runExplain();
+    }, 700);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+
+  function runExplain() {
+    if (!result) return;
+    setExplainLoading(true);
+    explain(result)
+      .then((exp) => setExplanation(exp))
+      .catch(() => setExplanation(null))
+      .finally(() => setExplainLoading(false));
+  }
+
+  function selectSession(s: Session) {
     if (!s.events) {
       console.warn(
         `[selectSession] "${s.sessionId}" has no events array — the list endpoint likely isn't sending full session data.`
@@ -100,7 +139,12 @@ export default function App() {
 
         <div className="pane">
           <div className="pane-title">Classification</div>
-          <ClassificationPanel />
+          <ClassificationPanel
+            result={result}
+            explanation={explanation}
+            explainLoading={explainLoading}
+            onRefreshExplanation={runExplain}
+          />
         </div>
       </div>
     </div>

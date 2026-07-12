@@ -9,7 +9,13 @@ const STATE_LABELS = {
   loyal_customer: "Loyal Customer",
 };
 
-export default function ClassificationPanel() {
+export default function ClassificationPanel({ result, explanation, explainLoading, onRefreshExplanation }) {
+      const [showFeatures, setShowFeatures] = useState(false);
+
+
+if (!result) {
+    return <div className="explain-loading">Waiting for events</div>;
+  }
   return (
     <div>
       
