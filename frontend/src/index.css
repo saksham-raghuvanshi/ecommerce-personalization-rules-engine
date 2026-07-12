@@ -181,3 +181,10 @@ html,body{
   color: var(--text-faint);
   margin-bottom: 16px;
 }
+
+.session-picker{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}

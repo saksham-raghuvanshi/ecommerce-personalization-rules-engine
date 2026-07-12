@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import ClassificationPanel from "./components/ClassificationPanel";
 import EventTimeline from "./components/EventTimeline";
 import SessionPicker from "./components/SessionPicker";
-
+import { fetchSessions } from "./api";
 
 
 
@@ -16,7 +17,26 @@ function blankSession() {
   };
 }
 
+
+
+
 function App() {
+  const [sessions, setSessions] = useState([]);
+
+
+  useEffect(()=>{
+    
+        const res = fetchSessions()
+
+
+        res.then((s)=>{
+          setSessions(s);
+        }).catch(error => {
+          console.error("Failed to fetch sessions:", error);
+        });
+      
+
+  },[])
 
   return (
   
@@ -32,7 +52,7 @@ function App() {
       <div className="main-grid">
         <div className="pane">
           <div className="pane-title">Session Simulator</div>
-          <SessionPicker/>
+          <SessionPicker sessions={sessions}/>
           <EventTimeline/>
         </div>
 
